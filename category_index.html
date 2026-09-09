@@ -4,7 +4,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>{{ $title ?? 'Point Of Sales' }}</title>
+    <title>Point Of Sales</title>
 
     <!-- SEO Optimization -->
     <meta name="description" content="Blank Page - Spark Admin Premium Bootstrap 5 Admin Dashboard Template">
@@ -20,7 +20,20 @@
 
     <!-- Main Design System & Custom Stylesheet -->
     <link rel="stylesheet" href="assets/css/main.css">
-    @include('inc.css')
+    <!-- Favicon -->
+    <link rel="icon" type="image/png" href="http://127.0.0.1:8000/assets/assets/images/favicon.ico">
+
+    <!-- Local Third-Party Libraries (100% Offline Compatible) -->
+    <link rel="stylesheet" href="http://127.0.0.1:8000/assets/assets/libs/bootstrap/css/bootstrap.min.css">
+    <link rel="stylesheet" href="http://127.0.0.1:8000/assets/assets/libs/bootstrap-icons/bootstrap-icons.css">
+    <link rel="stylesheet" href="http://127.0.0.1:8000/assets/assets/libs/apexcharts/apexcharts.css">
+    <link rel="stylesheet" href="http://127.0.0.1:8000/assets/assets/libs/flatpickr/flatpickr.min.css">
+
+    <!-- Main Design System & Custom Stylesheet -->
+    <link rel="stylesheet" href="http://127.0.0.1:8000/assets/assets/css/main.css">
+
+    <link rel="stylesheet" href="http://127.0.0.1:8000/assets/assets/libs/apexcharts/apexcharts.css">
+    <link rel="stylesheet" href="http://127.0.0.1:8000/assets/assets/libs/flatpickr/flatpickr.min.css">
 </head>
 
 <body>
@@ -43,43 +56,21 @@
                 <div class="sidebar-menu-title">Menu</div>
                 <ul class="sidebar-menu-list">
                     <li class="sidebar-menu-item">
-                        <a href="{{ url('/admin/dashboard') }}"
-                            class="sidebar-menu-link {{ request()->is('admin/dashboard*') ? 'active' : '' }}"
-                            id="menu-overview" title="Overview">
+                        <a href="http://127.0.0.1:8000/admin/dashboard" class="sidebar-menu-link " id="menu-overview" title="Overview">
                             <i class="bi bi-grid-fill"></i>
                             <span>Dashboard</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="{{ route('user.index') }}"
-                            class="sidebar-menu-link {{ request()->is('admin/user*') ? 'active' : '' }}" id="menu-user"
-                            title="User Management">
+                        <a href="http://127.0.0.1:8000/admin/user" class="sidebar-menu-link " id="menu-user" title="User Management">
                             <i class="bi bi-people-fill"></i>
                             <span>Users</span>
                         </a>
                     </li>
                     <li class="sidebar-menu-item">
-                        <a href="{{ route('categories.index') }}"
-                            class="sidebar-menu-link {{ request()->is('admin/categories*') ? 'active' : '' }}"
-                            id="menu-categories" title="Categories">
+                        <a href="http://127.0.0.1:8000/admin/categories" class="sidebar-menu-link active" id="menu-categories" title="Categories">
                             <i class="bi bi-tags-fill"></i>
                             <span>Categories</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="{{ route('roles.index') }}"
-                            class="sidebar-menu-link {{ request()->is('admin/roles*') ? 'active' : '' }}"
-                            id="menu-roles" title="Role Management">
-                            <i class="bi bi-shield-lock-fill"></i>
-                            <span>Roles</span>
-                        </a>
-                    </li>
-                    <li class="sidebar-menu-item">
-                        <a href="{{ route('products.index') }}"
-                            class="sidebar-menu-link {{ request()->is('admin/products*') ? 'active' : '' }}"
-                            id="menu-products" title="Products">
-                            <i class="bi bi-box-seam-fill"></i>
-                            <span>Products</span>
                         </a>
                     </li>
                 </ul>
@@ -181,18 +172,14 @@
                     </button>
                     <ul class="dropdown-menu dropdown-menu-quick-action" aria-labelledby="quick-actions-dropdown">
                         <li class="dropdown-header">Quick Action Shortcuts</li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-plus"></i> New
-                                Invoice</a>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-file-earmark-plus"></i> New Invoice</a>
                         </li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-person-plus"></i> New User</a>
-                        </li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-box-seam"></i> New Product</a>
-                        </li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-person-plus"></i> New User</a></li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-box-seam"></i> New Product</a></li>
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> System Settings</a>
-                        </li>
+                        <li><a class="dropdown-item" href="#"><i class="bi bi-gear"></i> System Settings</a></li>
                     </ul>
                 </div>
             </div>
@@ -279,15 +266,9 @@
                         <li>
                             <hr class="dropdown-divider">
                         </li>
-                        <li>
-
-                            <form action="{{ route('logout') }}" method="post" id="logout">
-                                <button type="submit" class="dropdown-item text-danger" href=""><i
-                                        class="bi bi-box-arrow-right"></i>
-                                    Logout</button>
-                            </form>
-
-                        </li>
+                        <li><a class="dropdown-item text-danger" href="page-login.html"><i
+                                    class="bi bi-box-arrow-right"></i>
+                                Logout</a></li>
                     </ul>
                 </div>
             </div>
@@ -297,26 +278,96 @@
         <!-- START: Page Header Banner -->
         <div class="page-header">
             <div>
-                <h1 class="page-title">@yield('page_title', 'Blank Page')</h1>
-                <p class="page-subtitle">@yield('page_subtitle', 'A blank starter template page for custom extensions.')</p>
+                <h1 class="page-title">Data Kategori</h1>
+                <p class="page-subtitle">Manajemen daftar kategori produk.</p>
             </div>
             <nav aria-label="breadcrumb">
                 <ol class="breadcrumb mb-0">
-                    <li class="breadcrumb-item"><a href="{{ url('/admin/dashboard') }}"
+                    <li class="breadcrumb-item"><a href="http://127.0.0.1:8000/admin/dashboard"
                             class="text-decoration-none text-muted-green">Home</a></li>
-                    @hasSection('breadcrumb')
-                        @yield('breadcrumb')
-                    @else
-                        <li class="breadcrumb-item active text-main" aria-current="page">Blank Page</li>
-                    @endif
-                </ol>
+                                                <li class="breadcrumb-item active text-main" aria-current="page">Categories</li>
+                                    </ol>
             </nav>
         </div>
         <!-- END: Page Header Banner -->
 
         <!-- START: Content Area -->
         <div class="content-wrapper p-4">
-            @yield('content')
+            <div class="table-card-custom">
+    <!-- Header Controls -->
+    <div class="table-header-control">
+        <div class="table-search-box border-0 bg-transparent">
+            <h5 class="mb-0 text-dark"><i class="bi bi-tags-fill me-2 text-primary"></i>Daftar Kategori</h5>
+        </div>
+        <div class="table-filter-group">
+            <a href="http://127.0.0.1:8000/admin/categories/create" class="btn-table-action bg-primary text-white text-decoration-none border-0 shadow-sm">
+                <i class="bi bi-plus-lg"></i> Tambah Kategori
+            </a>
+        </div>
+    </div>
+
+    
+    <!-- Responsive Table Wrapper -->
+    <div class="table-responsive">
+        <table class="table-custom">
+            <thead>
+                <tr>
+                    <th>ID Kategori</th>
+                    <th>Nama Kategori</th>
+                    <th>Deskripsi</th>
+                    <th>Aksi</th>
+                </tr>
+            </thead>
+            <tbody>
+                                <tr>
+                    <td><span class="text-muted fw-bold">#1</span></td>
+                    <td class="fw-semibold text-dark">Coffee</td>
+                    <td>-</td>
+                    <td>
+                        <a href="http://127.0.0.1:8000/admin/categories/1/edit" class="btn btn-warning btn-sm text-white rounded-3 me-1 px-3 shadow-sm" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="http://127.0.0.1:8000/admin/categories/1" method="POST" class="d-inline">
+                            <input type="hidden" name="_token" value="StLYTjcGrQTRaAwEuzZodxlrylMrgSftw4Hf27uh" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                            <button class="btn btn-danger btn-sm rounded-3 px-3 shadow-sm" onclick="return confirm('Yakin hapus kategori ini?')" title="Hapus">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                                <tr>
+                    <td><span class="text-muted fw-bold">#2</span></td>
+                    <td class="fw-semibold text-dark">Non Coffee</td>
+                    <td>-</td>
+                    <td>
+                        <a href="http://127.0.0.1:8000/admin/categories/2/edit" class="btn btn-warning btn-sm text-white rounded-3 me-1 px-3 shadow-sm" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="http://127.0.0.1:8000/admin/categories/2" method="POST" class="d-inline">
+                            <input type="hidden" name="_token" value="StLYTjcGrQTRaAwEuzZodxlrylMrgSftw4Hf27uh" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                            <button class="btn btn-danger btn-sm rounded-3 px-3 shadow-sm" onclick="return confirm('Yakin hapus kategori ini?')" title="Hapus">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                                <tr>
+                    <td><span class="text-muted fw-bold">#3</span></td>
+                    <td class="fw-semibold text-dark">Snack</td>
+                    <td>-</td>
+                    <td>
+                        <a href="http://127.0.0.1:8000/admin/categories/3/edit" class="btn btn-warning btn-sm text-white rounded-3 me-1 px-3 shadow-sm" title="Edit">
+                            <i class="bi bi-pencil-square"></i>
+                        </a>
+                        <form action="http://127.0.0.1:8000/admin/categories/3" method="POST" class="d-inline">
+                            <input type="hidden" name="_token" value="StLYTjcGrQTRaAwEuzZodxlrylMrgSftw4Hf27uh" autocomplete="off"> <input type="hidden" name="_method" value="DELETE">                            <button class="btn btn-danger btn-sm rounded-3 px-3 shadow-sm" onclick="return confirm('Yakin hapus kategori ini?')" title="Hapus">
+                                <i class="bi bi-trash"></i>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                            </tbody>
+        </table>
+    </div>
+</div>
         </div>
         <!-- END: Content Area -->
 
@@ -348,7 +399,17 @@
     <!-- ==========================================
         END: Main Content Area
         ========================================== -->
-    @include('inc.js')
+    <!-- Local Bootstrap bundle -->
+<script src="http://127.0.0.1:8000/assets/assets/libs/bootstrap/js/bootstrap.bundle.min.js"></script>
+
+<!-- Custom Authentication interactions script -->
+<script src="http://127.0.0.1:8000/assets/assets/js/auth.js"></script>
+
+<script src="http://127.0.0.1:8000/assets/assets/libs/apexcharts/apexcharts.min.js"></script>
+<script src="http://127.0.0.1:8000/assets/assets/libs/flatpickr/flatpickr.min.js"></script>
+
+<!-- Local dashboard interactions controller -->
+<script src="http://127.0.0.1:8000/assets/assets/js/dashboard.js"></script>
 
 
 </body>
