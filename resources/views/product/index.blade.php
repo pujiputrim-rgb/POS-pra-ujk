@@ -48,7 +48,10 @@
                     <td><span class="text-muted fw-bold">#{{ $product->id }}</span></td>
                     <td>
                         @if($product->photo)
-                            <img src="{{ asset('storage/' . $product->photo) }}" alt="Foto" class="img-thumbnail rounded-3" style="width: 50px; height: 50px; object-fit: cover;">
+                            @php
+                                $photoUrl = str_starts_with($product->photo, 'http') ? $product->photo : asset('storage/' . ltrim(str_replace('storage/', '', $product->photo), '/'));
+                            @endphp
+                            <img src="{{ $photoUrl }}" alt="{{ $product->name }}" class="img-thumbnail rounded-3" style="width: 50px; height: 50px; object-fit: cover;">
                         @else
                             <div class="bg-light rounded-3 d-flex align-items-center justify-content-center text-muted" style="width: 50px; height: 50px;">
                                 <i class="bi bi-image"></i>

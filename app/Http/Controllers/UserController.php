@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Role;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
@@ -13,7 +14,8 @@ class UserController extends Controller
      */
     public function index()
     {
-        $users = User::all();
+        $users = User::with('role')->get();
+
         return view('user.index', compact('users'));
     }
 
@@ -22,7 +24,9 @@ class UserController extends Controller
      */
     public function create()
     {
-        return view('user.create');
+        $roles = Role::all();
+
+        return view('user.create', compact('roles'));
     }
 
     /**
@@ -34,12 +38,14 @@ class UserController extends Controller
             'name' => 'required|string|max:255',
             'email' => 'required|string|email|max:255|unique:users',
             'password' => 'required|string|min:8',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
 
         User::create([
             'name' => $request->name,
             'email' => $request->email,
             'password' => Hash::make($request->password),
+            'role_id' => $request->role_id,
         ]);
 
         return redirect()->route('user.index')->with('success', 'User berhasil ditambahkan.');
@@ -59,7 +65,9 @@ class UserController extends Controller
     public function edit(string $id)
     {
         $user = User::findOrFail($id);
-        return view('user.edit', compact('user'));
+        $roles = Role::all();
+
+        return view('user.edit', compact('user', 'roles'));
     }
 
     /**
@@ -71,13 +79,15 @@ class UserController extends Controller
 
         $request->validate([
             'name' => 'required|string|max:255',
-            'email' => 'required|string|email|max:255|unique:users,email,' . $user->id,
+            'email' => 'required|string|email|max:255|unique:users,email,'.$user->id,
             'password' => 'nullable|string|min:8',
+            'role_id' => 'nullable|exists:roles,id',
         ]);
 
         $data = [
             'name' => $request->name,
             'email' => $request->email,
+            'role_id' => $request->role_id,
         ];
 
         if ($request->filled('password')) {

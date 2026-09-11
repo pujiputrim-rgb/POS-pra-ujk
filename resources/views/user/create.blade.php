@@ -17,16 +17,31 @@
                     @csrf
                     
                     <div class="mb-4">
-                        <label for="name" class="form-label text-muted-green fw-semibold">Nama Lengkap <span class="text-danger">*</span></label>
-                        <input type="text" class="form-control form-control-lg bg-light border-0 @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" placeholder="Masukkan nama lengkap" required>
+                        <label for="name" class="form-label text-muted-green fw-semibold">Nama Lengkap / Label Akun <span class="text-danger">*</span></label>
+                        <input type="text" class="form-control form-control-lg bg-light border-0 @error('name') is-invalid @enderror" id="name" name="name" value="{{ old('name') }}" placeholder="Contoh: Admin Utama, Kasir 1, Kasir 2, Pimpinan" required>
                         @error('name')
+                            <div class="invalid-feedback">{{ $message }}</div>
+                        @enderror
+                    </div>
+
+                    <div class="mb-4">
+                        <label for="role_id" class="form-label text-muted-green fw-semibold">Role / Hak Akses <span class="text-danger">*</span></label>
+                        <select class="form-select form-select-lg bg-light border-0 @error('role_id') is-invalid @enderror" id="role_id" name="role_id" required>
+                            <option value="">Pilih Role...</option>
+                            @foreach($roles as $role)
+                                <option value="{{ $role->id }}" {{ old('role_id') == $role->id ? 'selected' : '' }}>
+                                    {{ $role->name }}
+                                </option>
+                            @endforeach
+                        </select>
+                        @error('role_id')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror
                     </div>
                     
                     <div class="mb-4">
                         <label for="email" class="form-label text-muted-green fw-semibold">Alamat Email <span class="text-danger">*</span></label>
-                        <input type="email" class="form-control form-control-lg bg-light border-0 @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" placeholder="admin@example.com" required>
+                        <input type="email" class="form-control form-control-lg bg-light border-0 @error('email') is-invalid @enderror" id="email" name="email" value="{{ old('email') }}" placeholder="kasir1@gmail.com" required>
                         @error('email')
                             <div class="invalid-feedback">{{ $message }}</div>
                         @enderror

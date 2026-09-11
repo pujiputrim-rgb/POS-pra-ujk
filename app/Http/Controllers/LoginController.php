@@ -21,8 +21,14 @@ class LoginController extends Controller
 
         if (Auth::attempt($credentials)) {
             $request->session()->regenerate();
+            $user = Auth::user();
+            if ($user && $user->isKasir()) {
+                return redirect()->route('kasir.index');
+            }
+
             return redirect()->intended('/admin/dashboard');
         }
+
         return back()
             ->withErrors(['email' => 'Invalid Email or password'])->onlyInput('email');
     }
@@ -32,6 +38,7 @@ class LoginController extends Controller
         Auth::logout();
         $request->session()->invalidate();
         $request->session()->regenerateToken();
+
         return redirect('admin/login');
     }
 }

@@ -20,8 +20,11 @@
                     <div class="mb-4">
                         <label for="photo" class="form-label text-muted-green fw-semibold">Foto Produk <span class="text-muted fw-normal">(Opsional)</span></label>
                         @if($product->photo)
+                            @php
+                                $editPhotoUrl = str_starts_with($product->photo, 'http') ? $product->photo : asset('storage/' . ltrim(str_replace('storage/', '', $product->photo), '/'));
+                            @endphp
                             <div class="mb-2">
-                                <img src="{{ asset('storage/' . $product->photo) }}" alt="Foto Produk" class="img-thumbnail rounded-3 shadow-sm" style="height: 120px; object-fit: cover;">
+                                <img src="{{ $editPhotoUrl }}" alt="Foto Produk" class="img-thumbnail rounded-3 shadow-sm" style="height: 120px; object-fit: cover;">
                             </div>
                         @endif
                         <input type="file" class="form-control form-control-lg bg-light border-0 @error('photo') is-invalid @enderror" id="photo" name="photo" accept="image/*">
