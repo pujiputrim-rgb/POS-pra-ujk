@@ -75,4 +75,33 @@ class User extends Authenticatable
 
         return str_contains(strtolower($this->email), 'cashier') || str_contains(strtolower($this->email), 'kasir');
     }
+
+    /**
+     * Cek apakah user memiliki role/identitas Pimpinan.
+     */
+    public function isPimpinan(): bool
+    {
+        if (strtolower($this->email) === 'pimpinan@gmail.com' || strtolower($this->email) === 'manager@gmail.com') {
+            return true;
+        }
+
+        if (isset($this->role) && is_object($this->role)) {
+            $roleName = strtolower($this->role->name ?? '');
+            if ($roleName === 'pimpinan' || $roleName === 'manager') {
+                return true;
+            }
+        }
+
+        if ($this->role_id) {
+            $role = Role::find($this->role_id);
+            if ($role) {
+                $roleName = strtolower($role->name);
+                if ($roleName === 'pimpinan' || $roleName === 'manager') {
+                    return true;
+                }
+            }
+        }
+
+        return str_contains(strtolower($this->email), 'pimpinan') || str_contains(strtolower($this->email), 'manager');
+    }
 }

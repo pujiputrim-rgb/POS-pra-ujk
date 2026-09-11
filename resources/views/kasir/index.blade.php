@@ -60,7 +60,7 @@
                                  data-price="{{ $product->price }}"
                                  data-category="{{ $catName }}"
                                  data-stock="{{ $product->stock }}">
-                                <div class="card h-100 border product-card rounded-3 overflow-hidden text-decoration-none">
+                                <div class="card h-100 border product-card rounded-3 overflow-hidden text-decoration-none {{ $product->stock <= 0 ? 'bg-light out-of-stock-card opacity-75' : '' }}" style="{{ $product->stock <= 0 ? 'cursor: not-allowed; filter: grayscale(80%);' : '' }}">
                                     <!-- Image / Icon Header -->
                                     <div class="product-img-box d-flex align-items-center justify-content-center position-relative" style="background-color: #f8faf9; height: 130px;">
                                         @if($imgSrc)
@@ -73,9 +73,15 @@
                                         <span class="badge bg-white text-dark shadow-sm position-absolute top-0 start-0 m-2 rounded-pill px-2 py-1 small">
                                             {{ $catName }}
                                         </span>
-                                        <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 small">
-                                            Stok: {{ $product->stock }}
-                                        </span>
+                                        @if($product->stock <= 0)
+                                            <span class="badge bg-danger text-white position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 fw-bold shadow-sm">
+                                                Stok Habis
+                                            </span>
+                                        @else
+                                            <span class="badge bg-dark bg-opacity-75 text-white position-absolute bottom-0 end-0 m-2 rounded-pill px-2 py-1 small">
+                                                Stok: {{ $product->stock }}
+                                            </span>
+                                        @endif
                                     </div>
 
                                     <!-- Product Info & Action -->
@@ -88,9 +94,15 @@
                                                 Rp {{ number_format($product->price, 0, ',', '.') }}
                                             </div>
                                         </div>
-                                        <button type="button" class="btn btn-sm btn-outline-success w-100 rounded-pill py-1 mt-2 btn-add-to-cart fw-semibold">
-                                            <i class="bi bi-plus-lg me-1"></i> Tambah
-                                        </button>
+                                        @if($product->stock <= 0)
+                                            <button type="button" class="btn btn-sm btn-secondary w-100 rounded-pill py-1 mt-2 fw-semibold" onclick="Swal.fire('Mohon maaf!', 'Stok produk ini sedang habis.', 'warning');">
+                                                <i class="bi bi-slash-circle me-1"></i> Habis
+                                            </button>
+                                        @else
+                                            <button type="button" class="btn btn-sm btn-outline-success w-100 rounded-pill py-1 mt-2 btn-add-to-cart fw-semibold">
+                                                <i class="bi bi-plus-lg me-1"></i> Tambah
+                                            </button>
+                                        @endif
                                     </div>
                                 </div>
                             </div>
@@ -157,6 +169,20 @@
 
                 <!-- Order Calculation Summary & Payment Section -->
                 <div class="card-footer bg-light border-top p-3">
+                    <!-- Customer Info Section -->
+                    <div class="mb-3 border-bottom pb-3">
+                        <div class="row g-2">
+                            <div class="col-7">
+                                <label class="form-label small text-muted fw-bold mb-1">Nama Pelanggan</label>
+                                <input type="text" class="form-control form-control-sm" id="customerNameInput" placeholder="Masukkan nama...">
+                            </div>
+                            <div class="col-5">
+                                <label class="form-label small text-muted fw-bold mb-1" id="tableQueueLabel">Nomor Meja</label>
+                                <input type="text" class="form-control form-control-sm" id="tableQueueInput" placeholder="01 / A1">
+                            </div>
+                        </div>
+                    </div>
+
                     <!-- Price Breakdown -->
                     <div class="calculation-summary mb-3">
                         <div class="d-flex justify-content-between text-muted small mb-1">
@@ -257,50 +283,66 @@
             </div>
 
             <div class="modal-body p-4">
-                <!-- Struk Receipt Box -->
-                <div class="receipt-box border rounded-3 p-3 bg-light font-monospace small">
-                    <div class="text-center pb-3 border-bottom border-secondary border-opacity-25">
-                        <h6 class="fw-bold mb-0">POS CAFE INDONESIA</h6>
-                        <div class="text-muted">Jl. Pendidikan No. 10, Jakarta</div>
-                        <div class="text-muted mt-1" id="receiptTime"></div>
-                        <div class="fw-bold mt-1 text-dark" id="receiptTrxId"></div>
-                        <div class="text-muted" id="receiptOrderType"></div>
+                <!-- Struk Receipt Box (Format POS Standard 80mm) -->
+                <div class="receipt-box bg-white font-monospace text-dark" style="padding: 15px; font-size: 14px;">
+                    <div class="text-center mb-2">
+                        <strong style="font-size: 16px;">POS CAFE INDONESIA</strong><br>
+                        Jl. Pendidikan No. 10, Jakarta<br>
                     </div>
+                    
+                    <div class="border-dashed"></div>
+                    
+                    <div class="mb-2">
+                        <div id="receiptTime"></div>
+                        <div id="receiptTrxId"></div>
+                        <div id="receiptOrderType"></div>
+                    </div>
+                    
+                    <div class="border-dashed"></div>
 
-                    <div class="py-3 border-bottom border-secondary border-opacity-25" id="receiptItemsList">
+                    <div id="receiptItemsList" class="mb-2">
                         <!-- Populated by JS -->
                     </div>
 
-                    <div class="pt-3">
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>Subtotal:</span>
+                    <div class="border-dashed"></div>
+
+                    <div>
+                        <div class="receipt-item">
+                            <span>Subtotal</span>
                             <span id="receiptSubtotal">Rp 0</span>
                         </div>
-                        <div class="d-flex justify-content-between mb-1">
-                            <span>PPN (10%):</span>
+                        <div class="receipt-item">
+                            <span>PPN (10%)</span>
                             <span id="receiptTax">Rp 0</span>
                         </div>
-                        <div class="d-flex justify-content-between fw-bold fs-6 text-dark border-top pt-2 mb-2">
-                            <span>Total Akhir:</span>
+                        <div class="receipt-item fw-bold mt-1">
+                            <span>Total Akhir</span>
                             <span id="receiptTotal">Rp 0</span>
                         </div>
-                        <div class="d-flex justify-content-between text-muted">
-                            <span>Metode Bayar:</span>
+                    </div>
+                    
+                    <div class="border-dashed"></div>
+                    
+                    <div>
+                        <div class="receipt-item">
+                            <span>Metode Bayar</span>
                             <span id="receiptMethod">Tunai</span>
                         </div>
-                        <div class="d-flex justify-content-between text-muted" id="receiptCashRow">
-                            <span>Bayar Tunai:</span>
+                        <div class="receipt-item" id="receiptCashRow">
+                            <span>Bayar Tunai</span>
                             <span id="receiptCash">Rp 0</span>
                         </div>
-                        <div class="d-flex justify-content-between text-muted" id="receiptChangeRow">
-                            <span>Kembalian:</span>
+                        <div class="receipt-item" id="receiptChangeRow">
+                            <span>Kembalian</span>
                             <span id="receiptChange">Rp 0</span>
                         </div>
                     </div>
 
-                    <div class="text-center pt-4 text-muted small">
-                        *** TERIMA KASIH ATAS KUNJUNGAN ANDA ***<br>
-                        Silakan berkunjung kembali!
+                    <div class="border-dashed"></div>
+
+                    <div class="text-center mt-3">
+                        TERIMA KASIH ATAS KUNJUNGAN ANDA<br>
+                        Silakan berkunjung kembali
                     </div>
                 </div>
             </div>
@@ -375,6 +417,92 @@
         color: #15803D;
         border-color: #86EFAC !important;
     }
+    
+    /* PRINT STYLES UNTUK STRUK (Thermal 80mm) */
+    @media print {
+        /* Set ukuran kertas thermal 80mm dinamis tanpa batas tinggi kaku */
+        @page {
+            size: 80mm auto !important;
+            margin: 0mm !important;
+        }
+
+        /* Paksa HTML dan Body agar tidak membuat halaman baru */
+        html, body {
+            width: 80mm !important;
+            height: auto !important;
+            min-height: 0 !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            overflow: hidden !important;
+            font-family: 'Courier New', Courier, monospace !important;
+            font-size: 13px !important;
+            font-weight: 600 !important;
+            color: #000 !important;
+            -webkit-print-color-adjust: exact;
+        }
+
+        /* Hilangkan semua elemen luar & pencegahan Page Break */
+        header.navbar, .kasir-wrapper, .modal-header, .modal-footer, .btn, .no-print {
+            display: none !important;
+        }
+
+        /* Reset Modal Wrapper agar tidak merusak layout cetak */
+        #paymentSuccessModal, .modal-dialog, .modal-content, .modal-body {
+            position: static !important;
+            display: block !important;
+            width: 100% !important;
+            margin: 0 !important;
+            padding: 0 !important;
+            border: none !important;
+            box-shadow: none !important;
+            background: transparent !important;
+        }
+
+        /* Kontainer utama struk */
+        .receipt-box {
+            width: 80mm !important;
+            padding: 3mm !important;
+            margin: 0 auto !important;
+            display: block !important;
+            border: none !important;
+            background: white !important;
+            page-break-after: avoid !important; /* Mencegah cetak lembar ke-2 */
+            page-break-inside: avoid !important;
+        }
+
+        /* Layout Item Rata Kiri Kanan */
+        .receipt-item {
+            display: flex !important;
+            justify-content: space-between !important;
+            width: 100% !important;
+            margin-bottom: 3px !important;
+        }
+        
+        .receipt-box * {
+            color: #000 !important;
+            font-family: 'Courier New', Courier, monospace !important;
+        }
+        
+        /* Pastikan tidak ada margin bawah berlebih pada elemen terakhir */
+        *:last-child {
+            margin-bottom: 0 !important;
+            padding-bottom: 0 !important;
+        }
+        
+        .border-dashed {
+            border-top: 1px dashed #000 !important;
+            border-bottom: none !important;
+            border-left: none !important;
+            border-right: none !important;
+            margin: 8px 0 !important;
+            opacity: 1 !important;
+        }
+    }
+    
+    .border-dashed {
+        border-top: 1px dashed #ccc;
+        margin: 12px 0;
+    }
 </style>
 
 <!-- ==========================================
@@ -409,8 +537,24 @@ document.addEventListener('DOMContentLoaded', function () {
     const quickCashButtons = document.querySelectorAll('.quick-cash-btn');
     const paymentMethodRadios = document.querySelectorAll('input[name="paymentMethod"]');
     const orderTypeRadios = document.querySelectorAll('input[name="orderType"]');
-
+    const tableQueueLabel = document.getElementById('tableQueueLabel');
+    const customerNameInput = document.getElementById('customerNameInput');
+    const tableQueueInput = document.getElementById('tableQueueInput');
     const paymentSuccessModal = new bootstrap.Modal(document.getElementById('paymentSuccessModal'));
+
+    // --- Order Type Toggle Logic ---
+    orderTypeRadios.forEach(radio => {
+        radio.addEventListener('change', function() {
+            if (this.value === 'Take Away') {
+                tableQueueLabel.textContent = 'Nomor Antrian';
+                tableQueueInput.placeholder = 'A01 / 01';
+            } else {
+                tableQueueLabel.textContent = 'Nomor Meja';
+                tableQueueInput.placeholder = '01 / A1';
+            }
+        });
+    });
+
     const btnNewTransaction = document.getElementById('btnNewTransaction');
 
     // Format Rupiah Helper
@@ -473,6 +617,15 @@ document.addEventListener('DOMContentLoaded', function () {
     });
 
     function addToCart(id, name, price, stock) {
+        if (stock <= 0) {
+            if (typeof Swal !== 'undefined') {
+                Swal.fire('Mohon maaf!', 'Stok produk ini sedang habis.', 'warning');
+            } else {
+                alert('Mohon maaf! Stok produk ini sedang habis.');
+            }
+            return;
+        }
+
         const existing = cart.find(item => item.id == id);
         if (existing) {
             if (existing.qty < stock) {
@@ -537,7 +690,13 @@ document.addEventListener('DOMContentLoaded', function () {
                             <button type="button" class="btn btn-sm btn-outline-secondary qty-btn" onclick="updateQty(${index}, -1)">
                                 <i class="bi bi-dash"></i>
                             </button>
-                            <span class="fw-bold px-2 small">${item.qty}</span>
+                            <input type="number" class="form-control form-control-sm text-center mx-1 fw-bold p-0 cart-qty-input" 
+                                style="width: 45px; height: 26px;" 
+                                value="${item.qty}" 
+                                min="1" 
+                                max="${item.stock}" 
+                                oninput="setQty(${index}, this.value)"
+                                onblur="if(this.value === '') { setQty(${index}, 1); }">
                             <button type="button" class="btn btn-sm btn-outline-secondary qty-btn" onclick="updateQty(${index}, 1)">
                                 <i class="bi bi-plus"></i>
                             </button>
@@ -573,6 +732,22 @@ document.addEventListener('DOMContentLoaded', function () {
         } else {
             cart[index].qty = newQty;
         }
+        renderCart();
+    };
+
+    window.setQty = function (index, value) {
+        if (!cart[index]) return;
+        if (value === '') return; // Wait for blur to reset to 1 if empty
+        let newQty = parseInt(value);
+        
+        if (isNaN(newQty) || newQty < 1) {
+            newQty = 1;
+        } else if (newQty > cart[index].stock) {
+            alert(`Stok maksimal untuk item ini adalah ${cart[index].stock}`);
+            newQty = cart[index].stock;
+        }
+        
+        cart[index].qty = newQty;
         renderCart();
     };
 
@@ -644,11 +819,13 @@ document.addEventListener('DOMContentLoaded', function () {
         if (confirm('Kosongkan semua pesanan di keranjang?')) {
             cart = [];
             cashAmountInput.value = '';
+            customerNameInput.value = '';
+            tableQueueInput.value = '';
             renderCart();
         }
     });
 
-    // Process Payment Button -> Show Modal
+    // Process Payment Button -> Submit via AJAX then Show Modal
     btnProcessPayment.addEventListener('click', function () {
         if (cart.length === 0) return;
 
@@ -666,55 +843,107 @@ document.addEventListener('DOMContentLoaded', function () {
             return;
         }
 
-        // Populate Receipt Modal
-        const now = new Date();
-        const timeStr = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('id-ID');
-        const trxId = document.getElementById('orderIdText').textContent;
+        // Disable button while processing
+        const originalBtnText = btnProcessPayment.innerHTML;
+        btnProcessPayment.disabled = true;
+        btnProcessPayment.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Memproses...';
 
-        document.getElementById('receiptTime').textContent = timeStr;
-        document.getElementById('receiptTrxId').textContent = trxId;
-        document.getElementById('receiptOrderType').textContent = `Tipe: ${selectedOrderType}`;
+        // Prepare data for backend
+        const payload = {
+            _token: '{{ csrf_token() }}',
+            order_type: selectedOrderType,
+            customer_name: customerNameInput.value.trim(),
+            table_number: tableQueueInput.value.trim(),
+            payment_method: selectedMethod,
+            cash_given: cashGiven,
+            cart: cart.map(item => ({
+                id: item.id,
+                qty: item.qty,
+                price: item.price
+            }))
+        };
 
-        let receiptItemsHtml = '';
-        cart.forEach(item => {
-            receiptItemsHtml += `
-                <div class="d-flex justify-content-between mb-1">
-                    <div>${item.name} x${item.qty}</div>
-                    <div>${formatRp(item.price * item.qty)}</div>
-                </div>
-            `;
+        fetch('{{ route("kasir.store") }}', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'Accept': 'application/json',
+            },
+            body: JSON.stringify(payload)
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.success) {
+                // Update Order ID from server
+                document.getElementById('orderIdText').textContent = data.order.order_number;
+
+                // Populate Receipt Modal
+                const now = new Date();
+                const timeStr = now.toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'short', day: 'numeric' }) + ' ' + now.toLocaleTimeString('id-ID');
+                const trxId = data.order.order_number;
+
+                document.getElementById('receiptTime').textContent = timeStr;
+                document.getElementById('receiptTrxId').textContent = 'Trx : ' + trxId;
+                
+                let infoText = 'Tipe: ' + selectedOrderType;
+                const custName = customerNameInput.value.trim();
+                const tblQueue = tableQueueInput.value.trim();
+                if(custName) infoText += ' | Pelanggan: ' + custName;
+                if(tblQueue) infoText += ' | ' + (selectedOrderType === 'Take Away' ? 'Antrian: ' : 'Meja: ') + tblQueue;
+                
+                document.getElementById('receiptOrderType').textContent = infoText;
+
+                let receiptItemsHtml = '';
+                cart.forEach(item => {
+                    receiptItemsHtml += `
+                        <div style="margin-bottom: 6px;">
+                            <div style="text-align: left;">${item.name}</div>
+                            <div class="receipt-item">
+                                <span>${item.qty} x ${formatRp(item.price)}</span>
+                                <span class="fw-bold">${formatRp(item.price * item.qty)}</span>
+                            </div>
+                        </div>
+                    `;
+                });
+                document.getElementById('receiptItemsList').innerHTML = receiptItemsHtml;
+
+                document.getElementById('receiptSubtotal').textContent = formatRp(subtotal);
+                document.getElementById('receiptTax').textContent = formatRp(tax);
+                document.getElementById('receiptTotal').textContent = formatRp(grandTotal);
+                document.getElementById('receiptMethod').textContent = selectedMethod;
+
+                const cashRow = document.getElementById('receiptCashRow');
+                const changeRow = document.getElementById('receiptChangeRow');
+
+                if (selectedMethod === 'Tunai') {
+                    cashRow.style.display = 'flex';
+                    changeRow.style.display = 'flex';
+                    document.getElementById('receiptCash').textContent = formatRp(cashGiven);
+                    document.getElementById('receiptChange').textContent = formatRp(cashGiven - grandTotal);
+                } else {
+                    cashRow.style.display = 'none';
+                    changeRow.style.display = 'none';
+                }
+
+                paymentSuccessModal.show();
+            } else {
+                alert('Gagal memproses transaksi: ' + data.message);
+                btnProcessPayment.disabled = false;
+                btnProcessPayment.innerHTML = originalBtnText;
+            }
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            alert('Terjadi kesalahan sistem saat memproses transaksi.');
+            btnProcessPayment.disabled = false;
+            btnProcessPayment.innerHTML = originalBtnText;
         });
-        document.getElementById('receiptItemsList').innerHTML = receiptItemsHtml;
-
-        document.getElementById('receiptSubtotal').textContent = formatRp(subtotal);
-        document.getElementById('receiptTax').textContent = formatRp(tax);
-        document.getElementById('receiptTotal').textContent = formatRp(grandTotal);
-        document.getElementById('receiptMethod').textContent = selectedMethod;
-
-        const cashRow = document.getElementById('receiptCashRow');
-        const changeRow = document.getElementById('receiptChangeRow');
-
-        if (selectedMethod === 'Tunai') {
-            cashRow.style.display = 'flex';
-            changeRow.style.display = 'flex';
-            document.getElementById('receiptCash').textContent = formatRp(cashGiven);
-            document.getElementById('receiptChange').textContent = formatRp(cashGiven - grandTotal);
-        } else {
-            cashRow.style.display = 'none';
-            changeRow.style.display = 'none';
-        }
-
-        paymentSuccessModal.show();
     });
 
     // Reset After Transaction
     btnNewTransaction.addEventListener('click', function () {
-        cart = [];
-        cashAmountInput.value = '';
-        // Generate new TRX ID
-        const randomNum = Math.floor(100 + Math.random() * 900);
-        document.getElementById('orderIdText').textContent = `#TRX-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${randomNum}`;
-        renderCart();
+        // Reload the page to reset state and refresh product stocks from server
+        window.location.reload();
     });
 
 });

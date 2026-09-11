@@ -15,7 +15,7 @@ class EnsureKasir
     public function handle(Request $request, Closure $next): Response
     {
         if (! Auth::check()) {
-            return redirect('/admin/login');
+            return redirect('/login');
         }
 
         return $next($request);

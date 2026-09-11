@@ -24,6 +24,8 @@ class LoginController extends Controller
             $user = Auth::user();
             if ($user && $user->isKasir()) {
                 return redirect()->route('kasir.index');
+            } elseif ($user && $user->isPimpinan()) {
+                return redirect()->route('pimpinan.dashboard');
             }
 
             return redirect()->intended('/admin/dashboard');
@@ -39,6 +41,6 @@ class LoginController extends Controller
         $request->session()->invalidate();
         $request->session()->regenerateToken();
 
-        return redirect('admin/login');
+        return redirect('/login');
     }
 }
